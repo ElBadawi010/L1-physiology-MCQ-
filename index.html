@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced MCQ Exam</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #008080; --secondary: #004d4d; --accent: #ff9800; --bg: #f0f4f8; --text: #2d3436; --white: #ffffff; --success: #2ecc71; --error: #e74c3c; --gray: #7f8fa6; }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .container { background: var(--white); width: 95%; max-width: 700px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); padding: 25px; text-align: center; position: relative; }
+        
+        header h1 { color: var(--primary); margin: 0; font-size: 1.4rem; letter-spacing: 0.5px; }
+        .btn { background: linear-gradient(45deg, var(--primary), var(--secondary)); color: white; border: none; padding: 12px 30px; font-size: 1rem; border-radius: 50px; cursor: pointer; font-family: 'Poppins', sans-serif; margin-top: 15px; transition: transform 0.2s; box-shadow: 0 4px 15px rgba(0,128,128,0.3); font-weight: 600; width: 100%; max-width: 250px; }
+        .btn:hover { transform: scale(1.02); }
+        .btn-gray { background: var(--gray); box-shadow: 0 4px 15px rgba(127,143,166,0.3); }
+        .btn-gray:hover { background: #718093; }
+        .btn-warning { background: linear-gradient(45deg, #e67e22, #d35400); box-shadow: 0 4px 15px rgba(230,126,34,0.3); font-family: 'Cairo', sans-serif; font-size: 1.1rem; max-width: 100%;}
+        
+        .nav-buttons { display: flex; gap: 15px; justify-content: space-between; margin-top: 20px; }
+        .nav-buttons .btn { margin-top: 0; max-width: 48%; }
+        
+        .question-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 10px; gap: 15px;}
+        .question-box { font-size: 1.1rem; font-weight: 600; text-align: left; color: var(--secondary); line-height: 1.5; margin: 0; flex-grow: 1; }
+        
+        .badge { display: inline-block; padding: 5px 12px; border-radius: 50px; font-size: 0.8rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; color: white; white-space: nowrap;}
+        .badge-easy { background-color: #2ecc71; }
+        .badge-medium { background-color: #f1c40f; color: #333; }
+        .badge-hard { background-color: #e74c3c; }
+        
+        .difficulty-selector { width: 100%; max-width: 250px; padding: 10px; margin: 15px auto; border-radius: 8px; border: 2px solid var(--primary); font-family: 'Poppins', sans-serif; font-weight: 600; color: var(--secondary); outline: none; cursor: pointer; background: #f8f9fa; }
+        
+        .options { display: flex; flex-direction: column; gap: 10px; }
+        .option-btn { background: var(--white); border: 2px solid #e0e0e0; padding: 15px; border-radius: 12px; cursor: pointer; text-align: left; transition: 0.3s; font-weight: 500; color: #555; position: relative; }
+        .option-btn:hover:not(.disabled) { background: #f9f9f9; border-color: var(--primary); }
+        .option-btn.correct { background: #d4edda; border-color: var(--success); color: #155724; }
+        .option-btn.wrong { background: #f8d7da; border-color: var(--error); color: #721c24; }
+        .option-btn.disabled { pointer-events: none; opacity: 0.9; }
+        
+        .explanation-box { display: none; background: #e8f4f8; border-right: 5px solid var(--primary); padding: 15px; margin-top: 20px; text-align: right; direction: rtl; border-radius: 8px; font-family: 'Cairo', sans-serif; font-size: 1rem; line-height: 1.6; }
+        
+        .screen { display: none; animation: fadeIn 0.4s ease; }
+        .screen.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .progress-bar { width: 100%; height: 8px; background: #eee; margin: 20px 0; border-radius: 10px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.3s ease; }
+        
+        #retry-container { background: #fff3e0; border: 1px solid #ffe0b2; padding: 15px; border-radius: 12px; margin-top: 15px; }
+        #retry-container p { font-family: 'Cairo', sans-serif; color: #d35400; margin: 0 0 10px 0; font-weight: 700; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div id="start-screen" class="screen active">
+        <header>
+            <h1>ElBadawi Med Academy 🩺</h1>
+        </header>
+        <div style="margin: 25px 0;"><img src="https://cdn-icons-png.flaticon.com/512/3063/3063205.png" width="90"></div>
+        <h3 id="quiz-title-display" style="color:var(--accent);">Physiology & Homeostasis Exam</h3>
+        <p>30 MCQs | Clinical Cases Included</p>
+        
+        <select id="difficulty-filter" class="difficulty-selector">
+            <option value="all">🌐 All Questions (Mix)</option>
+            <option value="easy">🟢 Easy Only</option>
+            <option value="medium">🟡 Medium Only</option>
+            <option value="hard">🔴 Hard (Clinical Scenarios)</option>
+        </select>
+
+        <button class="btn" onclick="startQuiz()">Start Challenge</button>
+    </div>
+
+    <div id="quiz-screen" class="screen">
+        <div class="progress-bar"><div id="progress" class="progress-fill"></div></div>
+        <div id="timer" style="color:var(--error); font-weight:bold; margin-bottom:10px;"></div>
+        
+        <div class="question-header">
+            <div class="question-box" id="question-text"></div>
+            <span id="difficulty-badge" class="badge"></span>
+        </div>
+        
+        <div class="options" id="options-container"></div>
+        
+        <div id="explanation" class="explanation-box">
+            <strong>💡 الشرح والتوضيح:</strong><br>
+            <span id="explanation-text"></span>
+        </div>
+        
+        <div class="nav-buttons">
+            <button id="prev-btn" class="btn btn-gray" style="display:none;" onclick="prevQuestion()">⬅️ Previous</button>
+            <button id="next-btn" class="btn" style="display:none;" onclick="nextQuestion()">Next Question ➡️</button>
+        </div>
+    </div>
+
+    <div id="result-screen" class="screen">
+        <h2>Exam Complete!</h2>
+        <div style="font-size:3rem; font-weight:bold; color:var(--primary);" id="final-score">0%</div>
+        <div style="background:var(--accent); color:white; padding:5px 20px; border-radius:20px; font-weight:700; margin-bottom:20px; display:inline-block;" id="rank-text">Student</div>
+        
+        <div id="retry-container" style="display: none;">
+            <p>عندك بعض الأخطاء محتاج تراجعها وتتعلم منها يا دكتور!</p>
+            <button id="retry-btn" class="btn btn-warning" onclick="retryMistakes()">أعد محاولة الأسئلة الخاطئة 🔄</button>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <button class="btn" onclick="location.reload()">Return to Main Menu 🔄</button>
+        </div>
+    </div>
+    <footer style="margin-top:25px; font-size:0.8rem; color:#aaa;">Prepared by: ElBadawi Med Academy</footer>
+</div>
+
+<audio id="sound-correct" src="https://actions.google.com/sounds/v1/cartoon/magic_chime.ogg"></audio>
+<audio id="sound-wrong" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
+
+<script>
+    const quizTitle = "Physiology & Homeostasis Exam"; 
+
+    const mcqQuestions = [
+        { 
+            question: "What is the science that aims to understand the mechanisms of living things from the basis of cell function to the integrated behavior of the whole body?", 
+            options: ["Anatomy", "Pathology", "Physiology", "Histology"], 
+            correct: 2, 
+            explanation: "علم الـ Physiology هو العلم اللي بيدرس وظائف الأعضاء وبيفهمنا الـ mechanisms بتاعة الكائنات الحية من أول الخلية لحد الجسم كله. [Slide: What is Physiology]",
+            difficulty: "easy"
+        },
+        { 
+            question: "When an animal receives a weak signal from its sensory organs, what is the expected physiological response?", 
+            options: ["A local reflex action", "A strong behavioral change", "No response", "A central nervous system reaction"], 
+            correct: 2, 
+            explanation: "المحاضرة وضحت إن الـ Weak signals produce no responses، بينما الـ strong stimuli هي اللي بتعمل change في الـ physiological status. [Slide: Internal Environment]",
+            difficulty: "medium"
+        },
+        { 
+            question: "Changes in physical features such as body shape, skin, and internal organs are classified as:", 
+            options: ["Physiological adaptation", "Structural adaptation", "Behavioral adaptation", "Biochemical adaptation"], 
+            correct: 1, 
+            explanation: "أي تغير في الـ physical features زي شكل الجسم (body shape) أو الجلد بنسميه Structural adaptation يعني تكيف تركيبي. [Slide: Adaptation]",
+            difficulty: "easy"
+        },
+        { 
+            question: "A skunk spraying toxins when threatened is considered an example of which type of adaptation?", 
+            options: ["Structural adaptation", "Physiological adaptation", "Behavioral adaptation", "Morphological adaptation"], 
+            correct: 1, 
+            explanation: "رش السموم (spraying of toxins) دا بيعتبر Physiological adaptation لأنه تغير في الـ physiological activity بتاعة الجسم للدفاع عن نفسه. [Slide: Physiological Adaptation]",
+            difficulty: "medium"
+        },
+        { 
+            question: "A 25-year-old athlete finishes a tough workout on a hot day and immediately takes a cooling soak. What life-threatening condition is this action primarily preventing?", 
+            options: ["Hypothermia", "Hyperthermia", "Hypoglycemia", "Dehydration"], 
+            correct: 1, 
+            explanation: "الغطس في ماية باردة (cooling soak) بعد تمرين شاق بيمنع الـ Hyperthermia (ارتفاع درجة حرارة الجسم لمستوى خطير) وبيرجع الـ homeostasis. [Slide: Our bodies function best...]",
+            difficulty: "hard"
+        },
+        { 
+            question: "The maintenance of a relatively constant internal chemical and physical environment in the face of changing external factors is defined as:", 
+            options: ["Adaptation", "Homeostasis", "Positive feedback", "Osmoregulation"], 
+            correct: 1, 
+            explanation: "التعريف المباشر للـ Homeostasis هو الحفاظ على بيئة داخلية ثابتة (constant internal environment) رغم تغيرات البيئة الخارجية. [Slide: Homeostasis Definition]",
+            difficulty: "easy"
+        },
+        { 
+            question: "According to the lecture, what is the core body temperature that the body is actively attempting to keep?", 
+            options: ["96.8 degrees", "98.6 degrees", "100.4 degrees", "37.5 degrees"], 
+            correct: 1, 
+            explanation: "الجسم بيحاول دايماً يحافظ على الـ core body temperature عند 98.6 degrees عشان الخلايا تشتغل بأفضل كفاءة. [Slide: Continued Homeostasis]",
+            difficulty: "easy"
+        },
+        { 
+            question: "If a large deviation occurs in the narrow range of internal conditions (e.g., pH, blood sugar), what is the ultimate risk to the organism?", 
+            options: ["Enhanced organ function", "Temporary lethargy", "Organ malfunction and death", "Increased behavioral adaptation"], 
+            correct: 2, 
+            explanation: "الـ failure to maintain homeostasis بيؤدي لمشاكل كتير جداً أهمها الـ organ malfunction وممكن يوصل للوفاة (death). [Take-home message 1]",
+            difficulty: "medium"
+        },
+        { 
+            question: "Homeostasis in the human body operates on the same principle as which everyday system?", 
+            options: ["A car engine", "Home heating and air conditioning system", "A water filtration system", "An electrical generator"], 
+            correct: 1, 
+            explanation: "المحاضرة شبهت الـ homeostasis بنظام التكييف والتدفئة في البيت (home heating and air conditioning) اللي بيشتغل بـ sensors و effectors. [Slide: How does homeostasis work]",
+            difficulty: "easy"
+        },
+        { 
+            question: "A patient's body temperature drops. In a normal homeostatic response, the body reacts to UNDO this decrease. This process is called:", 
+            options: ["Positive feedback", "Negative feedback", "Osmoconforming", "Behavioral adaptation"], 
+            correct: 1, 
+            explanation: "أي process بتعكس أو بتلغي التغيير (undo the perturbation) بنسميها Negative feedback، ودي الـ most common في الحيوانات. [Slide: Negative Feedback Loop]",
+            difficulty: "medium"
+        },
+        { 
+            question: "Organisms that maintain homeostasis for a particular variable are called:", 
+            options: ["Conformers", "Regulators", "Adapters", "Osmoconformers"], 
+            correct: 1, 
+            explanation: "الكائنات اللي بتقدر تحافظ على بيئتها الداخلية ثابتة (maintain homeostasis) بنسميها Regulators. [Slide: Regulators vs. Conformers]",
+            difficulty: "easy"
+        },
+        { 
+            question: "A specific fish regulates its salt concentration but allows its body temperature to change with the water temperature. This shows that an organism:", 
+            options: ["Must be only a regulator", "Must be only a conformer", "Can be both a regulator and a conformer simultaneously", "Cannot survive in varying temperatures"], 
+            correct: 2, 
+            explanation: "الكائن ممكن يكون Regulator لمتغير معين (زي الملح) وفي نفس الوقت Conformer لمتغير تاني (زي الحرارة). [Slide: Regulators vs. Conformers]",
+            difficulty: "medium"
+        },
+        { 
+            question: "During childbirth, hormones released by the fetus stimulate uterine contractions, which causes more hormones to be released, increasing contraction strength. This is an example of:", 
+            options: ["Negative feedback", "Positive feedback", "Osmoregulation", "Conforming mechanism"], 
+            correct: 1, 
+            explanation: "لما التغيير يزود نفسه في نفس الاتجاه (increase change in the same direction) زي الانقباضات في الولادة، دا بنسميه Positive feedback وهو Non-homeostatic. [Slide: Positive feedback system]",
+            difficulty: "hard"
+        },
+        { 
+            question: "A patient sustains a severe cut. Platelets form a clot and stimulate the release of more clotting molecules. When does this amplification process shut down?", 
+            options: ["It continues indefinitely", "When the original stimulus is removed and the tear is filled", "When the body temperature rises", "When negative feedback is completely disabled"], 
+            correct: 1, 
+            explanation: "تجلط الدم (blood clotting) بيعتبر positive feedback، بس بيقف لما الجرح يتقفل (tear is filled)، وهنا بيتدخل الـ negative feedback الأكبر عشان يوقف العملية. [Slide: Continued Non-Homeostatic]",
+            difficulty: "hard"
+        },
+        { 
+            question: "Which of the following statements is true regarding feedback systems in animals?", 
+            options: ["Positive feedback systems are more common than negative.", "Negative feedback systems are less common than positive.", "Positive feedback systems push the body away from normal conditions.", "Negative feedback systems increase change in the same direction."], 
+            correct: 2, 
+            explanation: "الـ Positive feedback أقل شيوعاً (less common) ووظيفته إنه يبعد الجسم عن الحالة الطبيعية (push away from normal conditions) لغرض معين. [Take-home message 4]",
+            difficulty: "medium"
+        },
+        { 
+            question: "Organisms that live in fresh water face what specific osmotic challenge?", 
+            options: ["They are hypotonic and risk dehydration.", "They are hypertonic and risk swelling up and bursting.", "They do not need to regulate water.", "They constantly lose water through osmosis."], 
+            correct: 1, 
+            explanation: "كائنات المياه العذبة (Fresh water) بتكون Hypertonic لبيئتها، فبالتالي الماية بتدخل جسمهم كتير وممكن ينفجروا (swell up and burst). [Slide: Animals must balance water]",
+            difficulty: "medium"
+        },
+        { 
+            question: "Terrestrial animals (living on land) are typically hypotonic to their environment. What constant risk do they run?", 
+            options: ["Bursting from excess water", "Dehydration", "Hyperthermia only", "Excessive salt accumulation"], 
+            correct: 1, 
+            explanation: "الكائنات البرية (on land) بتكون Hypotonic للبيئة الجافة حواليها، فدايماً عندهم خطر الجفاف (Dehydration) وبيحتاجوا يحافظوا على الماية. [Slide: Animals must balance water]",
+            difficulty: "easy"
+        },
+        { 
+            question: "Which of the following is considered a method of water GAIN for animals?", 
+            options: ["Urination", "Evaporation", "Cellular respiration", "Defecation"], 
+            correct: 2, 
+            explanation: "الـ Osmoregulation بيوازن بين الكسب والفقد. من طرق الـ GAIN (الكسب): الشرب، الأكل، الخاصية الأسموزية، والـ Cellular respiration. [Slide: Gain and Loss of water]",
+            difficulty: "easy"
+        },
+        { 
+            question: "Most invertebrates that live in salt water, such as jellyfish, allow their internal fluid concentration to vary with the surrounding water. They are known as:", 
+            options: ["Osmoregulators", "Osmoconformers", "Thermoregulators", "Hypertonic adapters"], 
+            correct: 1, 
+            explanation: "اللافقاريات البحرية زي قنديل البحر بتخلي تركيز السوائل جواها يتغير مع البيئة الخارجية، فبنسميهم Osmoconformers. [Slide: Osmoregulation strategies]",
+            difficulty: "medium"
+        },
+        { 
+            question: "What specific structures have evolved in insects to excrete excess solutes while retaining water?", 
+            options: ["Kidneys", "Malpighian tubules", "Glomeruli", "Bowman's capsules"], 
+            correct: 1, 
+            explanation: "الحشرات بتستخدم أنابيب مالبيجي (Malpighian tubules) عشان تنظم الأسموزية وتتخلص من الفضلات مع الحفاظ على الماية. [Slide: Osmoregulation structures]",
+            difficulty: "medium"
+        },
+        { 
+            question: "What is the chief excretory organ in humans that regulates water balance and solute concentrations?", 
+            options: ["The liver", "The skin", "The kidney", "The large intestine"], 
+            correct: 2, 
+            explanation: "الكلية (Kidney) هي الـ primary organ في الفقاريات المسؤولة عن تنظيم الماية والأملاح والتخلص من الفضلات. [Slide: In humans, the kidney...]",
+            difficulty: "easy"
+        },
+        { 
+            question: "A single human kidney contains approximately how many nephrons?", 
+            options: ["100,000", "500,000", "Over 1 million", "Over 10 million"], 
+            correct: 2, 
+            explanation: "كل كلية فيها أكتر من مليون نفرون (over 1 million nephrons) وهما وحدة الفلترة الأساسية. [Slide: In humans, the kidney...]",
+            difficulty: "easy"
+        },
+        { 
+            question: "A medical student is studying renal physiology. How many liters of blood do the human kidneys filter approximately per day, and how much is eventually returned to the circulation?", 
+            options: ["Filters 500 L, returns 90%", "Filters 2000 L, returns 99.925%", "Filters 100 L, returns 50%", "Filters 2000 L, returns 1.5 L"], 
+            correct: 1, 
+            explanation: "الكلى بتفلتر حوالي 2000 لتر دم في اليوم، وبترجع 99.925% منه للدورة الدموية، واللي بينزل كبول حوالي 1.5 لتر بس! [Slide: In humans, the kidney...]",
+            difficulty: "hard"
+        },
+        { 
+            question: "In the human kidney, where does blood pressure force water and small molecules out of the capillaries?", 
+            options: ["Loop of Henle", "Collecting duct", "Glomerulus", "Ureter"], 
+            correct: 2, 
+            explanation: "الـ Filtration بيبدأ في الـ Glomerulus، ضغط الدم بيجبر الماية والجزيئات الصغيرة تخرج للـ Bowman's capsule. [Slide: How the human kidney works]",
+            difficulty: "medium"
+        },
+        { 
+            question: "As the filtrate moves through the tubule of the nephron, how are sodium ions initially moved out of the tubule to promote reabsorption?", 
+            options: ["Passive transport", "Active transport", "Osmosis", "Diffusion"], 
+            correct: 1, 
+            explanation: "أيونات الصوديوم (Sodium ions) بتخرج من الأنبوبة عن طريق الـ Active transport (النقل النشط) وده اللي بيسحب الماية وراها بالخاصية الأسموزية. [Slide: Reabsorption]",
+            difficulty: "medium"
+        },
+        { 
+            question: "During nephron reabsorption, the active movement of sodium ions causes water and chloride ions to move out of the tubule via:", 
+            options: ["Active transport", "Passive transport", "Filtration", "Secretion"], 
+            correct: 1, 
+            explanation: "لما الصوديوم بيخرج بالـ active transport، الماية والكلوريد بيتحركوا وراه عن طريق الـ Passive transport. [Slide: Reabsorption]",
+            difficulty: "medium"
+        },
+        { 
+            question: "The collecting duct merges with other collecting ducts to form which structure that empties into the urinary bladder?", 
+            options: ["Urethra", "Loop of Henle", "Glomerulus", "Ureter"], 
+            correct: 3, 
+            explanation: "الـ collecting ducts بتتجمع مع بعض وتكون الحالب (Ureter) اللي بيصب البول في المثانة (urinary bladder). [Slide: Excretion]",
+            difficulty: "easy"
+        },
+        { 
+            question: "Why does the loop of Henle cause more water to move out of the tubule as the filtrate moves down?", 
+            options: ["Decreased blood pressure", "The solute concentration outside the tubule increases", "Active transport of water", "Lack of sodium ions"], 
+            correct: 1, 
+            explanation: "طول ما الفلتر نازل في الـ loop of Henle، تركيز الأملاح برة الأنبوبة بيزيد (solute concentration increases)، فبيسحب الماية لبرة. [Slide: How the human kidney works]",
+            difficulty: "hard"
+        },
+        { 
+            question: "A 60-year-old patient with compromised kidney function is prescribed a new non-prescription medication. Why must this patient be closely monitored according to the lecture principles?", 
+            options: ["The drug will be reabsorbed too quickly.", "The drug will be completely ineffective.", "The drug has the potential to rise to damaging or lethal levels due to reduced excretion.", "The drug will increase the patient's body temperature."], 
+            correct: 2, 
+            explanation: "الأدوية بتخرج عن طريق الكلى، لو الكفاءة قلت (compromised kidney function)، الأدوية ممكن تتراكم وتوصل لمستويات سامة أو مميتة (lethal levels). [Slide: Continued... kidney]",
+            difficulty: "hard"
+        },
+        { 
+            question: "In addition to water, the kidneys excrete potentially toxic nitrogenous wastes. These wastes primarily come from the breakdown of:", 
+            options: ["Carbohydrates and lipids", "Protein and nucleic acid", "Vitamins and minerals", "Cholesterol and sugars"], 
+            correct: 1, 
+            explanation: "الفضلات النيتروجينية السامة (nitrogenous wastes) بتيجي أساساً من تكسير البروتينات والأحماض النووية (Protein and nucleic acid breakdown). [Slide: Continued... kidney]",
+            difficulty: "medium"
+        }
+    ];
+
+    let userAnswers = [];
+    let questionQueue = [];
+    let currentQueueIndex = 0;
+    let timer;
+    const timePerQuestion = 60; 
+
+    document.getElementById('quiz-title-display').innerText = quizTitle;
+
+    function startQuiz() {
+        if(mcqQuestions.length === 0) {
+            alert("No questions found! Please add questions to the array.");
+            return;
+        }
+
+        const selectedDifficulty = document.getElementById('difficulty-filter').value;
+        questionQueue = [];
+        
+        mcqQuestions.forEach((q, index) => {
+            if (selectedDifficulty === 'all' || q.difficulty === selectedDifficulty) {
+                questionQueue.push(index);
+            }
+        });
+
+        if(questionQueue.length === 0) {
+            alert("No questions available for the selected difficulty level.");
+            return;
+        }
+
+        userAnswers = new Array(mcqQuestions.length).fill(null);
+        currentQueueIndex = 0;
+        
+        document.getElementById('start-screen').classList.remove('active');
+        document.getElementById('quiz-screen').classList.add('active');
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        resetState();
+        let realIndex = questionQueue[currentQueueIndex];
+        const currentQuestion = mcqQuestions[realIndex];
+        
+        document.getElementById('question-text').innerText = "Q" + (currentQueueIndex + 1) + ". " + currentQuestion.question;
+        
+        const badge = document.getElementById('difficulty-badge');
+        badge.innerText = currentQuestion.difficulty || "unrated";
+        badge.className = "badge"; 
+        if(currentQuestion.difficulty === 'easy') badge.classList.add('badge-easy');
+        else if(currentQuestion.difficulty === 'medium') badge.classList.add('badge-medium');
+        else if(currentQuestion.difficulty === 'hard') badge.classList.add('badge-hard');
+        
+        const progressPercent = ((currentQueueIndex) / questionQueue.length) * 100;
+        document.getElementById('progress').style.width = progressPercent + "%";
+
+        document.getElementById('prev-btn').style.display = currentQueueIndex > 0 ? 'block' : 'none';
+
+        const container = document.getElementById('options-container');
+        container.innerHTML = '';
+
+        currentQuestion.options.forEach((option, index) => {
+            const button = document.createElement('button');
+            button.innerText = option;
+            button.classList.add('option-btn');
+            button.onclick = () => selectAnswer(index, button);
+            container.appendChild(button);
+        });
+
+        if (userAnswers[realIndex] !== null) {
+            document.getElementById('timer').innerText = '⏳ Saved Answer';
+            restoreAnswerState();
+        } else {
+            startTimer();
+        }
+    }
+
+    function resetState() {
+        clearInterval(timer);
+        document.getElementById('next-btn').style.display = 'none';
+        document.getElementById('explanation').style.display = 'none';
+        document.getElementById('timer').innerText = '';
+    }
+
+    function startTimer() {
+        let timeLeft = timePerQuestion;
+        document.getElementById('timer').innerText = `⏳ ${timeLeft}s`;
+        timer = setInterval(() => {
+            timeLeft--;
+            document.getElementById('timer').innerText = `⏳ ${timeLeft}s`;
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                let realIndex = questionQueue[currentQueueIndex];
+                userAnswers[realIndex] = -1; 
+                playSound('wrong');
+                restoreAnswerState();
+            }
+        }, 1000);
+    }
+
+    function selectAnswer(selectedIndex, btn) {
+        clearInterval(timer);
+        let realIndex = questionQueue[currentQueueIndex];
+        userAnswers[realIndex] = selectedIndex;
+        
+        const currentQuestion = mcqQuestions[realIndex];
+        if (selectedIndex === currentQuestion.correct) {
+            playSound('correct');
+        } else {
+            playSound('wrong');
+        }
+
+        restoreAnswerState();
+    }
+
+    function restoreAnswerState() {
+        let realIndex = questionQueue[currentQueueIndex];
+        const currentQuestion = mcqQuestions[realIndex];
+        const correctIndex = currentQuestion.correct;
+        const answeredIndex = userAnswers[realIndex];
+        const allButtons = document.querySelectorAll('.option-btn');
+
+        if (answeredIndex !== -1 && answeredIndex !== null) {
+            if (answeredIndex === correctIndex) {
+                allButtons[answeredIndex].classList.add('correct');
+            } else {
+                allButtons[answeredIndex].classList.add('wrong');
+                allButtons[correctIndex].classList.add('correct');
+            }
+        } else if (answeredIndex === -1) {
+            allButtons[correctIndex].classList.add('correct');
+        }
+
+        disableOptions();
+        showExplanation();
+        
+        const nextBtn = document.getElementById('next-btn');
+        nextBtn.style.display = 'block';
+        nextBtn.innerText = (currentQueueIndex === questionQueue.length - 1) ? "Finish Exam 🏁" : "Next Question ➡️";
+    }
+
+    function disableOptions() {
+        const allButtons = document.querySelectorAll('.option-btn');
+        allButtons.forEach(button => button.classList.add('disabled'));
+    }
+
+    function showExplanation() {
+        let realIndex = questionQueue[currentQueueIndex];
+        const currentQuestion = mcqQuestions[realIndex];
+        document.getElementById('explanation-text').innerText = currentQuestion.explanation;
+        document.getElementById('explanation').style.display = 'block';
+    }
+
+    function nextQuestion() {
+        if (currentQueueIndex < questionQueue.length - 1) {
+            currentQueueIndex++;
+            loadQuestion();
+        } else {
+            showResults();
+        }
+    }
+
+    function prevQuestion() {
+        if (currentQueueIndex > 0) {
+            currentQueueIndex--;
+            loadQuestion();
+        }
+    }
+
+    function showResults() {
+        document.getElementById('quiz-screen').classList.remove('active');
+        document.getElementById('result-screen').classList.add('active');
+        
+        let finalScore = 0;
+        let wrongIndices = [];
+        
+        questionQueue.forEach((realIndex) => {
+            if (userAnswers[realIndex] === mcqQuestions[realIndex].correct) {
+                finalScore++;
+            } else {
+                wrongIndices.push(realIndex);
+            }
+        });
+
+        const percentage = Math.round((finalScore / questionQueue.length) * 100);
+        document.getElementById('final-score').innerText = percentage + "%";
+        
+        let rank = "Fail (راسب)";
+        if (percentage >= 90) rank = "Excellent (ممتاز) 🌟";
+        else if (percentage >= 80) rank = "Very Good (جيد جداً) 👏";
+        else if (percentage >= 65) rank = "Good (جيد) 👍";
+        else if (percentage >= 50) rank = "Pass (مقبول) 😐";
+        
+        document.getElementById('rank-text').innerText = rank;
+
+        const retryContainer = document.getElementById('retry-container');
+        if (wrongIndices.length > 0) {
+            retryContainer.style.display = 'block';
+            document.getElementById('retry-btn').innerText = `أعد محاولة الأسئلة الخاطئة (${wrongIndices.length}) 🔄`;
+            window.currentWrongIndices = wrongIndices;
+        } else {
+            retryContainer.style.display = 'none';
+        }
+    }
+
+    function retryMistakes() {
+        questionQueue = window.currentWrongIndices;
+        currentQueueIndex = 0;
+        
+        questionQueue.forEach(idx => userAnswers[idx] = null);
+        
+        document.getElementById('result-screen').classList.remove('active');
+        document.getElementById('quiz-screen').classList.add('active');
+        loadQuestion();
+    }
+
+    function playSound(type) {
+        const id = type === 'correct' ? 'sound-correct' : 'sound-wrong';
+        document.getElementById(id).play().catch(e => {});
+    }
+</script>
+</body>
+</html>
